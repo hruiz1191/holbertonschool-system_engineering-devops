@@ -1,0 +1,88 @@
+Secured and monitored web infrastructure
+
+This infrastructure secures and monitors a distributed web system.
+HTTPS ensures encrypted traffic.
+* A firewall protects the load balancer (HAProxy), which distributes requests to two backend servers.
+* Each server runs Nginx, app code, MySQL (Primary or Replica), and a monitoring agent.
+* A centralized monitoring tool collects logs and metrics.
+
+                         ┌────────────────────────┐
+                         │    User's Browser       │
+                         └──────────┬──────────────┘
+                                    │
+                             HTTPS via SSL
+                                    │
+                         ┌──────────▼──────────┐
+                         │  Firewall (FW #1)   │
+                         │    + Load Balancer  │
+                         │     (HAProxy w/SSL) │
+                         └──────────┬──────────┘
+                                    │
+                       ┌────────────┴─────────────┐
+                       │                          │
+        ┌──────────────▼──────────────┐  ┌────────▼──────────────┐
+        │ Firewall (FW #2)            │  │ Firewall (FW #3)       │
+        │ Web/App/DB Server 1         │  │ Web/App/DB Server 2    │
+        │ - Nginx                     │  │ - Nginx                │
+        │ - App Code                  │  │ - App Code             │
+        │ - MySQL (Primary DB)        │  │ - MySQL (Replica DB)   │
+        │ - Monitoring Agent          │  │ - Monitoring Agent     │
+        └────────────────────────────┘  └─────────────────────────┘
+                       │                          │
+             ┌─────────▼────────────┐
+             │ Monitoring Collector │ ← (e.g. SumoLogic, Datadog)
+             └──────────────────────┘
+
+
+
+Specifics About This Infrastructure
+🔹 For every additional element, why you are adding it
+Firewall:
+ Protects each server by filtering incoming and outgoing network traffic based on security rules.
+
+
+HTTPS (SSL):
+ Encrypts data between the user's browser and the server to ensure privacy and prevent interception.
+
+
+Monitoring Agents:
+ Installed on each server to collect system metrics, logs, and performance data.
+
+
+Monitoring Collector:
+ Central server (e.g., SumoLogic or Datadog) that receives and displays data from the agents for analysis.
+
+
+🔹 What are firewalls for
+* To block unauthorized access.
+* To allow only specific traffic (e.g., port 80/443 for web, 22 for SSH).
+* To reduce the attack surface of the system.
+
+🔹 Why is the traffic served over HTTPS
+* To encrypt communication between client and server.
+* To protect sensitive data (like login credentials or personal info).
+* To prevent MITM (Man-in-the-Middle) attacks and data leaks.
+* To improve SEO and browser compatibility, as most modern browsers require HTTPS.
+
+🔹 What monitoring is used for
+* To detect issues in real time (downtime, CPU overload, memory spikes).
+* To track performance, availability, and usage metrics.
+* To trigger alerts when thresholds are breached.
+* To assist in debugging and post-incident analysis.
+
+🔹 How the monitoring tool is collecting data
+Monitoring agents run on each server and:
+
+* Collect logs (e.g., Nginx access logs, syslogs).
+* Gather metrics (CPU, memory, disk, uptime, etc.).
+* Send this data to the central Monitoring Collector via secure channels.
+
+🔹 Explain what to do if you want to monitor your web server QPS (Queries Per Second)
+Configure your monitoring agent to read from:
+
+
+* Nginx access logs, or
+* HAProxy statistics endpoint
+* Parse log lines or request counters to calculate:
+* Number of HTTP requests per second
+* Visualize this data in the monitoring dashboard (e.g., Datadog, Prometheus + Grafana).
