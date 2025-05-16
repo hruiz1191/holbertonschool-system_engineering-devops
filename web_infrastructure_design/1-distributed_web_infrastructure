@@ -1,0 +1,121 @@
+Distributed web infrastructure
+A distributed web infrastructure is a system where the components of a website (web server, application server, and database) are 
+spread across multiple servers. Instead of using a single machine to handle all user requests, the workload is distributed to improve performance, 
+availability, and fault tolerance.
+
+In this setup:
+* A load balancer (HAProxy) receives all incoming traffic and distributes it between two backend servers.
+* Each backend server has its own web server, application logic, and database.
+* The databases are configured as Primary (write) and Replica (read), enabling redundancy.
+
+                      ┌────────────────────────┐
+                      │     User's Browser     │
+                      └────────────┬───────────┘
+                                   │
+                             (Internet)
+                                   │
+                       ┌──────────▼──────────┐
+                       │     Load Balancer   │
+                       │      (HAProxy)      │
+                       └────────┬────────────┘
+                                │
+                 ┌──────────────┴──────────────┐
+                 │                             │
+     ┌───────────▼──────────┐       ┌──────────▼───────────┐
+     │    Web & App Server 1│       │   Web & App Server 2  │
+     │ - Nginx              │       │ - Nginx               │
+     │ - App logic (e.g., Flask)│   │ - App logic (e.g., Flask) │
+     │ - App codebase       │       │ - App codebase        │
+     │ - MySQL (Primary DB) │       │ - MySQL (Replica DB)  │
+     └──────────────────────┘       └───────────────────────┘
+
+
+
+Specifics About This Infrastructure
+🔹 For every additional element, why you are adding it
+Load Balancer (HAProxy):
+ Distributes traffic between backend servers to avoid overloading a single machine and to provide redundancy.
+
+
+Two Backend Servers:
+ Allow traffic to be balanced. If one fails, the other can continue serving the application.
+
+
+Databases (Primary and Replica):
+ A Primary DB handles writes; the Replica improves performance by handling read requests and serves as backup.
+
+
+🔹 What distribution algorithm your load balancer is configured with and how it works
+Algorithm: Round Robin
+ The load balancer sends each new request to the next available server in order.
+ For example:
+
+
+Request 1 → Server A
+
+
+Request 2 → Server B
+
+
+Request 3 → Server A again, and so on.
+ This keeps the load evenly distributed when the servers are stateless.
+
+
+🔹 Is your load-balancer enabling an Active-Active or Active-Passive setup? Explain the difference.
+Setup: Active-Active
+ Both backend servers are online and serving requests at the same time.
+ If one fails, the other continues, ensuring high availability.
+
+
+Difference:
+ * Active-Active: Both servers handle traffic continuously.
+ * Active-Passive: One server handles all traffic; the other only activates if the first one fails.
+
+
+🔹 How a database Primary-Replica (Master-Slave) cluster works
+  * The Primary database handles all write operations (e.g., creating or updating data).
+  *The Replica database receives real-time copies of the Primary’s data (using replication) and handles read-only queries.
+  * This improves performance and provides a backup in case the Primary fails.
+
+
+🔹 What is the difference between the Primary node and the Replica node in regard to the application?
+Primary Node:
+* Accepts read and write operations.
+* Is the source of truth for the data.
+
+Replica Node:
+* Accepts read-only operations.
+* Syncs data from the Primary.
+
+Helps reduce the load on the Primary and improves response times for read-heavy applications.
+Issues with This Infrastructure
+🔹Where are SPOF (Single Points of Failure)?
+Load Balancer:
+ If there's only one HAProxy load balancer and it goes down, no traffic can reach the backend servers. This is a critical single point of failure.
+
+
+Primary Database:
+ If the Primary database fails and there's no automatic failover to promote the Replica, the application can no longer perform write operations.
+
+
+🔹 Security Issues (no firewall, no HTTPS)
+No Firewall:
+ * Without a firewall, all ports and services are exposed to the public. This increases the risk of:
+ * Unauthorized access
+ * Port scanning and exploitation
+ * Denial-of-service (DoS) attacks
+
+No HTTPS (SSL/TLS):
+ Without HTTPS:
+ * Data is transmitted in plain text.
+ * Vulnerable to Man-in-the-Middle (MITM) attacks.
+ * User credentials, cookies, and session data can be intercepted.
+
+🔹 No Monitoring
+ *Without a monitoring system (like Prometheus, Datadog, or SumoLogic):
+ * You cannot detect when a server or service goes down.
+ *No visibility into performance, errors, CPU, memory, or disk usage.
+ * No logs or alerts — making debugging and response slower.
+ * No SLA (Service Level Awareness) or proactive incident response.
+
+
