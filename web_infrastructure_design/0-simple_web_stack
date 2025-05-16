@@ -2,7 +2,28 @@ Simple web stack
 A user types www.foobar.com in their browser. This domain points to the server at IP 8.8.8.8, which hosts a basic web infrastructure. 
 The single server runs a web server (Nginx), an application server, your codebase, and a MySQL database — all working together to deliver the website.
 
-![Simple web stack](URL-de-la-imagen)
+               [ User's Browser ]
+                       │
+                   (Internet)
+                       │
+             ┌───────────────┐
+             │ Load Balancer │   ← Balances traffic across servers
+             └───────────────┘
+              /           \
+      ┌────────────┐   ┌────────────┐
+      │ Web Server │   │ Web Server │   ← Apache or Nginx
+      └────────────┘   └────────────┘
+           │                │
+     ┌───────────┐     ┌───────────┐
+     │ App Server│     │ App Server│   ← PHP, Python, etc.
+     └───────────┘     └───────────┘
+           \                /
+            └──────┬───────┘
+                   │
+           ┌────────────┐
+           │  Database  │   ← MySQL/PostgreSQL
+           └────────────┘
+
 
 User Request:
 A user types www.foobar.com in the browser → DNS resolves www to IP 8.8.8.8.
