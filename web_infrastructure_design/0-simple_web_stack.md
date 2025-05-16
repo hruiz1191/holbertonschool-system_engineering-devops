@@ -1,0 +1,47 @@
+Simple web stack
+A user types www.foobar.com in their browser. This domain points to the server at IP 8.8.8.8, which hosts a basic web infrastructure. 
+The single server runs a web server (Nginx), an application server, your codebase, and a MySQL database — all working together to deliver the website.
+
+![Simple web stack](URL-de-la-imagen)
+
+User Request:
+A user types www.foobar.com in the browser → DNS resolves www to IP 8.8.8.8.
+
+Components and Their Roles
+Server:
+ A physical or virtual machine hosting the entire web stack.
+
+
+Domain Name:
+ foobar.com makes the site human-readable. www is a DNS A record pointing to 8.8.8.8.
+
+
+Web Server (Nginx):
+ Listens on port 80/443, handles HTTP(S) requests, serves static files, forwards dynamic requests to the app server.
+
+
+Application Server:
+ Executes the backend logic (e.g., PHP, Python), processes user requests, connects to the database.
+
+
+Application Files (Codebase):
+ The website’s backend code (e.g., .php, .py, .js) that powers dynamic behavior.
+
+
+Database (MySQL):
+ Stores and retrieves data like users, posts, and site content.
+
+
+Communication:
+ Server communicates with the user's browser via TCP/IP over HTTP or HTTPS.
+Infrastructure Issues
+SPOF (Single Point of Failure):
+ One server — if it fails, the whole website goes down.
+
+
+Downtime for Maintenance:
+ Restarting the web server (e.g., after code updates) causes service interruption.
+
+
+No Scalability:
+ One server can't handle too much traffic — no load balancing or redundancy.
