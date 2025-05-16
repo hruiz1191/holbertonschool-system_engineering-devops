@@ -1,0 +1,68 @@
+Task 3 - Scale up 
+
+This diagram shows a scalable and secure web infrastructure with two HAProxy load balancers, two web servers running Nginx, 
+two application servers using Python and Flask, and a MySQL database with primary-replica setup. Traffic from the user is encrypted via HTTPS 
+and distributed across the system for high availability and performance.
+
+                        ┌─────────────────────────────┐
+                        │      User's Browser         │
+                        └────────────┬────────────────┘
+                                     │
+                             HTTPS (SSL Enabled)
+                                     │
+                       ┌─────────────▼─────────────┐
+                       │      Load Balancer 1      │
+                       │         (HAProxy)         │
+                       └────────────┬──────────────┘
+                                     │
+                       ┌────────────▼─────────────┐
+                       │      Load Balancer 2      │
+                       │     (HAProxy Clustered)   │
+                       └────────────┬──────────────┘
+                                     │
+         ┌───────────────────────────┴───────────────────────────┐
+         │                                                       │
+┌────────▼────────┐                                   ┌──────────▼────────┐
+│   Web Server 1  │                                   │   Web Server 2    │
+│    (Nginx)      │                                   │     (Nginx)       │
+└─────────────────┘                                   └────────────────────┘
+         │                                                       │
+         ▼                                                       ▼
+┌────────────────────┐                               ┌────────────────────┐
+│ Application Server 1│                               │ Application Server 2│
+│  (Flask/Django/etc.)│                               │  (Flask/Django/etc.)│
+└────────────────────┘                               └────────────────────┘
+         │                                                       │
+         └───────────────────┐                    ┌──────────────┘
+                             ▼                    ▼
+                         ┌─────────────┐   ┌──────────────┐
+                         │ Primary DB  │   │ Replica DB   │
+                         │  (MySQL)    │   │   (MySQL)    │
+                         └─────────────┘   └──────────────┘
+
+This infrastructure separates the web server, application server, and database into dedicated servers, and introduces
+a clustered load balancer setup for high availability.
+
+Specifics About This Infrastructure
+
+1. Second Load Balancer (HAProxy Cluster)
+ To eliminate the Single Point of Failure (SPOF) at the load-balancer level.
+ If Load Balancer 1 fails, Load Balancer 2 can still route traffic, ensuring high availability.
+
+2. Extra Server (to split components
+ To isolate roles and prevent resource conflicts:
+     * Web server doesn’t fight with app logic or DB processes.
+     * Each layer can be scaled or maintained independently.
+
+3. Dedicated Web Server (Nginx)
+To handle HTTP/HTTPS requests, serve static content (images, CSS, JS), and forward dynamic requests to the app server.  This improves performance and response time.
+ 
+4. Dedicated Application Server (Flask, Django, etc.)
+To execute business logic, process user input, handle sessions, APIs, and connect to the database. This separation ensures that backend logic doesn’t interfere with web traffic handling.
+
+5. Dedicated Database Server (MySQL/PostgreSQL)
+ To manage persistent data (users, content, sessions) securely and efficiently.
+ This setup improves scalability, simplifies backups, and allows for database tuning separate from app/web layers.
+
+
+
